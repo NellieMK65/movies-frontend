@@ -218,6 +218,6 @@ This app demonstrates several React best practices:
 - Add user authentication
 - Implement movie ratings and reviews
 
-## 📄 License
+## License
 
 This project is open source and available under the [MIT License](LICENSE).
