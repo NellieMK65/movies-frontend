@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
 
 // Zod Validation Schema - Defines the "shape" and rules for our form data
 // This is like a blueprint that says "valid movie data must look like this"
@@ -78,6 +79,16 @@ const genres = [
 
 // AddMovie Component - Functional component that renders a form to add new movies
 export default function AddMovie() {
+  const [genres, setGenres] = useState([]);
+
+  useEffect(() => {
+    fetch(`http://localhost:8000/genre`)
+      .then((res) => res.json())
+      .then((data) => {
+        setGenres(data);
+      });
+  }, []); //empty depedancy -> run only once when the website is rendered
+
   // useForm Hook - Sets up React Hook Form with our Zod validation schema
   // This gives us form state management, validation, and submission handling
   const form = useForm({
