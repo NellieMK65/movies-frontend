@@ -61,7 +61,7 @@ const schema = z.object({
   }),
 
   // Genre ID validation (references genre from dropdown)
-  genre_id: z.coerce.number({
+  genre_id: z.string({
     invalid_type_error: "Genre must be a number",
     error: "Movie genre is required",
   }),
@@ -95,11 +95,27 @@ export default function AddMovie() {
     resolver: zodResolver(schema), // Connect our Zod schema for validation
   });
 
+  console.log(form.formState.errors);
+  console.log(form.getValues());
   // Form Submission Handler Pattern
   // form.handleSubmit wraps our function and only calls it if validation passes
   // 'data' parameter contains the validated form data
   const onSubmit = form.handleSubmit((data) => {
-    console.log(data); // TODO: Send data to API to save the movie
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+
+    const raw = JSON.stringify(data);
+
+    const requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: raw,
+    };
+
+    fetch("http://localhost:8000/catalogue", requestOptions)
+      .then((response) => response.text())
+      .then((result) => console.log(result))
+      .catch((error) => console.log("error", error));
   });
 
   // JSX Return - Form layout with centered container
@@ -135,7 +151,7 @@ export default function AddMovie() {
               <FormField
                 control={form.control}
                 name="name" // This matches the 'name' field in our Zod schema
-                render={(field) => (
+                render={({ field }) => (
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
@@ -161,7 +177,7 @@ export default function AddMovie() {
                 <FormField
                   control={form.control}
                   name="year" // Links to 'year' in Zod schema
-                  render={(field) => (
+                  render={({ field }) => (
                     <FormItem>
                       <FormLabel>Year</FormLabel>
                       <FormControl>
@@ -178,27 +194,20 @@ export default function AddMovie() {
 
                 <FormField
                   control={form.control}
-                  name="genre_id"
-                  render={(field) => (
+                  name="duration"
+                  render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Genre</FormLabel>
+                      <FormLabel>Duration</FormLabel>
                       <FormControl>
-                        <Select
-                          name={field.name}
-                          value={field.value}
-                          onValueChange={field.onChange}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select genre" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {genres.map((genre) => (
-                              <SelectItem key={genre.id} value={genre.id}>
-                                {genre.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        {/*
+                          type="number" makes this a number input with up/down arrows
+                          Browser will show numeric keypad on mobile devices
+                        */}
+                        <Input
+                          placeholder="Duration"
+                          type="number"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -206,11 +215,40 @@ export default function AddMovie() {
                 />
               </div>
 
+              <FormField
+                control={form.control}
+                name="genre_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Genre</FormLabel>
+                    <FormControl>
+                      <Select
+                        name={field.name}
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select genre" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {genres.map((genre) => (
+                            <SelectItem key={genre.id} value={genre.id}>
+                              {genre.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               {/* Description field - Multi-line text input */}
               <FormField
                 control={form.control}
                 name="description" // Links to 'description' in Zod schema
-                render={(field) => (
+                render={({ field }) => (
                   <FormItem>
                     <FormLabel>Description</FormLabel>
                     <FormControl>

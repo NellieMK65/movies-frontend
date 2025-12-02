@@ -1,5 +1,5 @@
 // React hook for managing component state
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // Pre-built UI components (from shadcn/ui library)
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,18 @@ export default function Home() {
   // useState Hook Pattern: [currentValue, setterFunction] = useState(initialValue)
   // 'movies' is our state variable, 'setMovies' is the function to update it
   // We start with an array containing the same movie 4 times (temporary data)
-  const [movies, setMovies] = useState([movie, movie, movie, movie]);
+  const [movies, setMovies] = useState([]);
+
+  useEffect(() => {
+    const requestOptions = {
+      method: "GET",
+    };
+
+    fetch("http://localhost:8000/catalogue", requestOptions)
+      .then((response) => response.json())
+      .then((result) => setMovies(result))
+      .catch((error) => console.log("error", error));
+  }, []);
 
   // JSX Return - This is what the component renders to the screen
   return (
@@ -46,7 +57,7 @@ export default function Home() {
 
           Important: Each item in a list needs a unique 'key' prop for React's reconciliation
         */}
-        {movies.map((_, index) => (
+        {movies.map((movie, index) => (
           <Card
             key={movie.id} // Unique identifier for React (should be unique per item)
             className="flex flex-col gap-4 p-6 hover:border-primary transition-colors"
@@ -58,7 +69,7 @@ export default function Home() {
                 Curly braces {} let us insert JavaScript expressions into JSX
               */}
               <h2 className="text-xl font-bold text-foreground mb-2">
-                {movie.title}
+                {movie.name}
               </h2>
 
               {/* Movie metadata badges */}
